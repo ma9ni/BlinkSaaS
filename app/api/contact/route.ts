@@ -11,10 +11,11 @@ if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_SECRET_KEY || !process.
   })
 }
 
-const mailjet = Mailjet.connect(
-  process.env.MAILJET_API_KEY || '',
-  process.env.MAILJET_SECRET_KEY || ''
-)
+// Create Mailjet client
+const mailjet = new Mailjet({
+  apiKey: process.env.MAILJET_API_KEY || '',
+  apiSecret: process.env.MAILJET_SECRET_KEY || ''
+})
 
 async function verifyRecaptcha(token: string) {
   const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
     try {
       // Email à l'administrateur
       await mailjet
-        .post("send", { version: 'v3.1' })
+        .post('send', { version: 'v3.1' })
         .request({
           Messages: [
             {
@@ -107,7 +108,7 @@ ${message}
 
       // Email de confirmation à l'utilisateur
       await mailjet
-        .post("send", { version: 'v3.1' })
+        .post('send', { version: 'v3.1' })
         .request({
           Messages: [
             {
