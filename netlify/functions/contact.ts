@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import type { Handler } from "@netlify/functions"
 import Mailjet from 'node-mailjet'
 
 // Vérification des variables d'environnement
@@ -12,10 +12,10 @@ if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_API_SECRET || !process.
 }
 
 // Create Mailjet client
-const mailjet = new Mailjet({
-  apiKey: process.env.MAILJET_API_KEY || '',
-  apiSecret: process.env.MAILJET_API_SECRET || ''
-})
+const mailjet = Mailjet.apiConnect(
+  process.env.MAILJET_API_KEY || '',
+  process.env.MAILJET_API_SECRET || ''
+)
 
 async function verifyRecaptcha(token: string) {
   const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
@@ -30,38 +30,43 @@ async function verifyRecaptcha(token: string) {
   return data.success
 }
 
-export async function POST(request: Request) {
+export const handler: Handler = async (event) => {
+  // Only allow POST
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    }
+  }
+
   try {
-    const body = await request.json()
+    const body = JSON.parse(event.body || '{}')
     const { firstName, lastName, email, phone, company, message, recaptchaToken } = body
 
     // Vérification du reCAPTCHA
     const isRecaptchaValid = await verifyRecaptcha(recaptchaToken)
     if (!isRecaptchaValid) {
-      console.error('reCAPTCHA validation failed')
-      return NextResponse.json(
-        { error: 'Validation reCAPTCHA échouée' },
-        { status: 400 }
-      )
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Validation reCAPTCHA échouée' })
+      }
     }
 
     // Validation des champs requis
     if (!firstName || !lastName || !email || !message) {
-      console.error('Validation error: Missing required fields', { firstName, lastName, email, message })
-      return NextResponse.json(
-        { error: 'Tous les champs requis doivent être remplis' },
-        { status: 400 }
-      )
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Tous les champs requis doivent être remplis' })
+      }
     }
 
     // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      console.error('Validation error: Invalid email format', { email })
-      return NextResponse.json(
-        { error: 'Format d\'email invalide' },
-        { status: 400 }
-      )
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Format d\'email invalide' })
+      }
     }
     
     try {
@@ -144,19 +149,22 @@ L'équipe BlinkSaaS
           ]
         })
 
-      return NextResponse.json({ success: true })
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success: true })
+      }
     } catch (mailjetError) {
       console.error('Mailjet error:', mailjetError)
-      return NextResponse.json(
-        { error: 'Erreur lors de l\'envoi des emails' },
-        { status: 500 }
-      )
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Erreur lors de l\'envoi des emails' })
+      }
     }
   } catch (error) {
     console.error('General error:', error)
-    return NextResponse.json(
-      { error: 'Erreur lors du traitement de la requête' },
-      { status: 500 }
-    )
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Erreur lors du traitement de la requête' })
+    }
   }
 }
