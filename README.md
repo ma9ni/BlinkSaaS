@@ -33,7 +33,7 @@ Une plateforme moderne pour le développement rapide de SaaS et l'automatisation
 
 1. Clonez le repository :
 ```bash
-git clone https://github.com/votre-username/blinksaas.git
+git clone https://github.com/ma9ni/blinksaas.git
 cd blinksaas
 ```
 
@@ -44,7 +44,11 @@ npm install
 
 3. Créez un fichier `.env.local` et ajoutez vos variables d'environnement :
 ```env
+# Google reCAPTCHA
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=votre_cle_recaptcha
+
+# Google Analytics
+NEXT_PUBLIC_GA_MEASUREMENT_ID=votre_id_google_analytics
 ```
 
 4. Lancez le serveur de développement :
@@ -81,7 +85,9 @@ blinksaas/
 Le projet est configuré pour un déploiement sur Netlify. Pour déployer :
 
 1. Connectez votre repository à Netlify
-2. Configurez les variables d'environnement dans les paramètres du projet
+2. Configurez les variables d'environnement dans les paramètres du projet :
+   - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`
+   - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 3. Déployez avec la commande :
 ```bash
 npm run build
