@@ -33,7 +33,7 @@ Une plateforme moderne pour le développement rapide de SaaS et l'automatisation
 
 1. Clonez le repository :
 ```bash
-git clone https://github.com/ma9ni/blinksaas.git
+git clone https://github.com/votre-username/blinksaas.git
 cd blinksaas
 ```
 

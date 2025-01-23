@@ -4,6 +4,8 @@ import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
 
+const GA_MEASUREMENT_ID = 'G-6WWZ10399P';
+
 type CookieConsent = {
   necessary: boolean;
   analytics: boolean;
@@ -58,7 +60,6 @@ export function useAnalytics() {
 // Composant principal d'Analytics
 export function Analytics() {
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   useEffect(() => {
     try {
@@ -72,7 +73,7 @@ export function Analytics() {
     }
   }, []);
 
-  if (!showAnalytics || !GA_MEASUREMENT_ID) {
+  if (!showAnalytics) {
     return null;
   }
 
