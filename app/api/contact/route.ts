@@ -12,10 +12,10 @@ if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_API_SECRET || !process.
 }
 
 // Create Mailjet client
-const mailjet = new Mailjet({
-  apiKey: process.env.MAILJET_API_KEY || '',
-  apiSecret: process.env.MAILJET_API_SECRET || ''
-})
+const mailjet = Mailjet.apiConnect(
+  process.env.MAILJET_API_KEY || '',
+  process.env.MAILJET_API_SECRET || ''
+)
 
 async function verifyRecaptcha(token: string) {
   const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
