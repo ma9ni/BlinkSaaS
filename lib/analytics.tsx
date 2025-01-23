@@ -13,13 +13,11 @@ type CookieConsent = {
   personalization: boolean;
 }
 
-// Événements personnalisés pour l'analytics
 export type AnalyticsEvent = {
   name: string;
   properties?: Record<string, string | number | boolean>;
 }
 
-// Hook personnalisé pour le tracking
 export function useAnalytics() {
   const [isEnabled, setIsEnabled] = useState(false);
 
@@ -47,7 +45,10 @@ export function useAnalytics() {
 
       // Envoi de l'événement à Google Analytics
       if (w.gtag) {
-        w.gtag('event', event.name, event.properties);
+        w.gtag('event', event.name, {
+          ...event.properties,
+          send_to: GA_MEASUREMENT_ID
+        });
       }
     } catch (error) {
       console.error('Error tracking event:', error);
@@ -57,7 +58,6 @@ export function useAnalytics() {
   return { isEnabled, trackEvent };
 }
 
-// Composant principal d'Analytics
 export function Analytics() {
   const [showAnalytics, setShowAnalytics] = useState(false);
 
@@ -93,6 +93,7 @@ export function Analytics() {
             gtag('js', new Date());
             gtag('config', '${GA_MEASUREMENT_ID}', {
               page_path: window.location.pathname,
+              send_page_view: true
             });
           `,
         }}

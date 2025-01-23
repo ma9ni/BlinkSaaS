@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server'
 import Mailjet from 'node-mailjet'
 
+// Vérification des variables d'environnement
+if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_API_SECRET || !process.env.NEXT_PUBLIC_CONTACT_EMAIL) {
+  console.error('Configuration error: Missing environment variables', {
+    MAILJET_API_KEY: !!process.env.MAILJET_API_KEY,
+    MAILJET_API_SECRET: !!process.env.MAILJET_API_SECRET,
+    NEXT_PUBLIC_CONTACT_EMAIL: !!process.env.NEXT_PUBLIC_CONTACT_EMAIL
+  })
+}
+
 const mailjet = new Mailjet({
   apiKey: process.env.MAILJET_API_KEY || '',
   apiSecret: process.env.MAILJET_API_SECRET || ''
@@ -27,28 +36,49 @@ export async function POST(request: Request) {
     // Vérification du reCAPTCHA
     const isRecaptchaValid = await verifyRecaptcha(recaptchaToken)
     if (!isRecaptchaValid) {
+      console.error('reCAPTCHA validation failed')
       return NextResponse.json(
         { error: 'Validation reCAPTCHA échouée' },
         { status: 400 }
       )
     }
+
+    // Validation des champs requis
+    if (!firstName || !lastName || !email || !message) {
+      console.error('Validation error: Missing required fields', { firstName, lastName, email, message })
+      return NextResponse.json(
+        { error: 'Tous les champs requis doivent être remplis' },
+        { status: 400 }
+      )
+    }
+
+    // Validation de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      console.error('Validation error: Invalid email format', { email })
+      return NextResponse.json(
+        { error: 'Format d\'email invalide' },
+        { status: 400 }
+      )
+    }
     
-    // Email à l'administrateur
-    const adminEmail = await mailjet.post('send', { version: 'v3.1' }).request({
-      Messages: [
-        {
-          From: {
-            Email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-            Name: "BlinkSaaS Contact"
-          },
-          To: [
-            {
+    try {
+      // Email à l'administrateur
+      await mailjet.post('send', { version: 'v3.1' }).request({
+        Messages: [
+          {
+            From: {
               Email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-              Name: "BlinkSaaS Admin"
-            }
-          ],
-          Subject: `[Contact BlinkSaaS] Nouveau message de ${firstName} ${lastName}`,
-          TextPart: `
+              Name: "BlinkSaaS Contact"
+            },
+            To: [
+              {
+                Email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+                Name: "BlinkSaaS Admin"
+              }
+            ],
+            Subject: `[Contact BlinkSaaS] Nouveau message de ${firstName} ${lastName}`,
+            TextPart: `
 Nouveau message de contact :
 
 Nom: ${firstName} ${lastName}
@@ -58,8 +88,8 @@ Entreprise: ${company || 'Non renseignée'}
 
 Message:
 ${message}
-          `,
-          HTMLPart: `
+            `,
+            HTMLPart: `
 <h3>Nouveau message de contact</h3>
 <p><strong>Nom:</strong> ${firstName} ${lastName}</p>
 <p><strong>Email:</strong> ${email}</p>
@@ -67,27 +97,27 @@ ${message}
 <p><strong>Entreprise:</strong> ${company || 'Non renseignée'}</p>
 <p><strong>Message:</strong></p>
 <p>${message}</p>
-          `
-        }
-      ]
-    })
+            `
+          }
+        ]
+      })
 
-    // Email de confirmation à l'utilisateur
-    const userEmail = await mailjet.post('send', { version: 'v3.1' }).request({
-      Messages: [
-        {
-          From: {
-            Email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-            Name: "BlinkSaaS"
-          },
-          To: [
-            {
-              Email: email,
-              Name: `${firstName} ${lastName}`
-            }
-          ],
-          Subject: "Confirmation de votre message - BlinkSaaS",
-          TextPart: `
+      // Email de confirmation à l'utilisateur
+      await mailjet.post('send', { version: 'v3.1' }).request({
+        Messages: [
+          {
+            From: {
+              Email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+              Name: "BlinkSaaS"
+            },
+            To: [
+              {
+                Email: email,
+                Name: `${firstName} ${lastName}`
+              }
+            ],
+            Subject: "Confirmation de votre message - BlinkSaaS",
+            TextPart: `
 Bonjour ${firstName},
 
 Nous avons bien reçu votre message et nous vous en remercions.
@@ -95,24 +125,31 @@ Notre équipe reviendra vers vous dans les plus brefs délais.
 
 Cordialement,
 L'équipe BlinkSaaS
-          `,
-          HTMLPart: `
+            `,
+            HTMLPart: `
 <h3>Bonjour ${firstName},</h3>
 <p>Nous avons bien reçu votre message et nous vous en remercions.</p>
 <p>Notre équipe reviendra vers vous dans les plus brefs délais.</p>
 <br>
 <p>Cordialement,</p>
 <p>L'équipe BlinkSaaS</p>
-          `
-        }
-      ]
-    })
+            `
+          }
+        ]
+      })
 
-    return NextResponse.json({ success: true })
+      return NextResponse.json({ success: true })
+    } catch (mailjetError) {
+      console.error('Mailjet error:', mailjetError)
+      return NextResponse.json(
+        { error: 'Erreur lors de l\'envoi des emails' },
+        { status: 500 }
+      )
+    }
   } catch (error) {
-    console.error('Erreur lors de l\'envoi du message:', error)
+    console.error('General error:', error)
     return NextResponse.json(
-      { error: 'Erreur lors de l\'envoi du message' },
+      { error: 'Erreur lors du traitement de la requête' },
       { status: 500 }
     )
   }
