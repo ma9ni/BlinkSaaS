@@ -69,27 +69,30 @@ function ContactForm() {
         return
       }
 
-      const subject = `[NeuraX]${values.firstName} ${values.lastName}`
-      const mailtoLink = `mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`
-Nom: ${values.firstName} ${values.lastName}
-Email: ${values.email}
-${values.phone ? `Téléphone: ${values.phone}` : ''}
-${values.company ? `Entreprise: ${values.company}` : ''}
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...values,
+          recaptchaToken: token
+        }),
+      })
 
-Message:
-${values.message}
-      `)}`
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi du message')
+      }
 
-      window.location.href = mailtoLink
-      
       toast.success("Message envoyé avec succès !", {
-        description: "Nous vous répondrons dans les plus brefs délais.",
+        description: "Nous avons bien reçu votre message et reviendrons vers vous rapidement.",
       })
       
       form.reset()
     } catch (error) {
+      console.error("Erreur lors de l'envoi du formulaire :", error)
       toast.error("Erreur lors de l'envoi du message", {
-        description: "Veuillez réessayer plus tard ou nous contacter directement.",
+        description: "Veuillez réessayer plus tard ou nous contacter directement par email.",
       })
     }
   }
@@ -234,8 +237,8 @@ export default function ContactPage() {
               <GoogleReCaptchaProvider
                 reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
                 scriptProps={{
-                  async: false,
-                  defer: false,
+                  async: true,
+                  defer: true,
                   appendTo: "head",
                   nonce: undefined,
                 }}

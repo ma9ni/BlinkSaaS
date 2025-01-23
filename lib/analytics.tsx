@@ -11,13 +11,11 @@ type CookieConsent = {
   personalization: boolean;
 }
 
-// Événements personnalisés pour l'analytics
 export type AnalyticsEvent = {
   name: string;
   properties?: Record<string, string | number | boolean>;
 }
 
-// Hook personnalisé pour le tracking
 export function useAnalytics() {
   const [isEnabled, setIsEnabled] = useState(false);
 
@@ -45,7 +43,10 @@ export function useAnalytics() {
 
       // Envoi de l'événement à Google Analytics
       if (w.gtag) {
-        w.gtag('event', event.name, event.properties);
+        w.gtag('event', event.name, {
+          ...event.properties,
+          send_to: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+        });
       }
     } catch (error) {
       console.error('Error tracking event:', error);
@@ -55,10 +56,8 @@ export function useAnalytics() {
   return { isEnabled, trackEvent };
 }
 
-// Composant principal d'Analytics
 export function Analytics() {
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   useEffect(() => {
     try {
@@ -72,7 +71,7 @@ export function Analytics() {
     }
   }, []);
 
-  if (!showAnalytics || !GA_MEASUREMENT_ID) {
+  if (!showAnalytics) {
     return null;
   }
 
@@ -80,7 +79,7 @@ export function Analytics() {
     <>
       <Script
         strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
       />
       <Script
         id="google-analytics"
@@ -90,8 +89,9 @@ export function Analytics() {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', {
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
               page_path: window.location.pathname,
+              send_page_view: true
             });
           `,
         }}
