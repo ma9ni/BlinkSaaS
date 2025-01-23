@@ -70,7 +70,7 @@ function ContactForm() {
       }
 
       const subject = `[NeuraX]${values.firstName} ${values.lastName}`
-      const mailtoLink = `mailto:contact@neurax.fr?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`
+      const mailtoLink = `mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`
 Nom: ${values.firstName} ${values.lastName}
 Email: ${values.email}
 ${values.phone ? `Téléphone: ${values.phone}` : ''}
@@ -232,7 +232,7 @@ export default function ContactPage() {
           >
             <div className="bg-card rounded-lg shadow-lg p-8">
               <GoogleReCaptchaProvider
-                reCaptchaKey="6LcVbb8qAAAAAFzWOtoOfnzHq7lLV6aOHc-TJSd5"
+                reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
                 scriptProps={{
                   async: false,
                   defer: false,
