@@ -235,7 +235,7 @@ export default function ContactPage() {
           >
             <div className="bg-card rounded-lg shadow-lg p-8">
               <GoogleReCaptchaProvider
-                reCaptchaKey="6LcVbb8qAAAAAFzWOtoOfnzHq7lLV6aOHc-TJSd5"
+                reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
                 scriptProps={{
                   async: true,
                   defer: true,

@@ -4,8 +4,6 @@ import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
 
-const GA_MEASUREMENT_ID = 'G-6WWZ10399P';
-
 type CookieConsent = {
   necessary: boolean;
   analytics: boolean;
@@ -47,7 +45,7 @@ export function useAnalytics() {
       if (w.gtag) {
         w.gtag('event', event.name, {
           ...event.properties,
-          send_to: GA_MEASUREMENT_ID
+          send_to: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
         });
       }
     } catch (error) {
@@ -81,7 +79,7 @@ export function Analytics() {
     <>
       <Script
         strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
       />
       <Script
         id="google-analytics"
@@ -91,7 +89,7 @@ export function Analytics() {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', {
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
               page_path: window.location.pathname,
               send_page_view: true
             });
