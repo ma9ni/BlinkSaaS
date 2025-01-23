@@ -49,6 +49,9 @@ NEXT_PUBLIC_RECAPTCHA_SITE_KEY=votre_cle_recaptcha
 
 # Google Analytics
 NEXT_PUBLIC_GA_MEASUREMENT_ID=votre_id_google_analytics
+
+# Contact Form
+NEXT_PUBLIC_CONTACT_EMAIL=blinksaas@gmail.com
 ```
 
 4. Lancez le serveur de développement :
@@ -88,6 +91,7 @@ Le projet est configuré pour un déploiement sur Netlify. Pour déployer :
 2. Configurez les variables d'environnement dans les paramètres du projet :
    - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`
    - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+   - `NEXT_PUBLIC_CONTACT_EMAIL`
 3. Déployez avec la commande :
 ```bash
 npm run build
