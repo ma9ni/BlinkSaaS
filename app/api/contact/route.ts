@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import Mailjet from 'node-mailjet'
 
 // Vérification des variables d'environnement
-if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_SECRET_KEY || !process.env.NEXT_PUBLIC_CONTACT_EMAIL || !process.env.RECAPTCHA_SECRET_KEY) {
+if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_API_SECRET || !process.env.NEXT_PUBLIC_CONTACT_EMAIL || !process.env.RECAPTCHA_SECRET_KEY) {
   console.error('Configuration error: Missing environment variables', {
     MAILJET_API_KEY: !!process.env.MAILJET_API_KEY,
-    MAILJET_SECRET_KEY: !!process.env.MAILJET_SECRET_KEY,
+    MAILJET_API_SECRET: !!process.env.MAILJET_API_SECRET,
     NEXT_PUBLIC_CONTACT_EMAIL: !!process.env.NEXT_PUBLIC_CONTACT_EMAIL,
     RECAPTCHA_SECRET_KEY: !!process.env.RECAPTCHA_SECRET_KEY
   })
@@ -14,7 +14,7 @@ if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_SECRET_KEY || !process.
 // Create Mailjet client
 const mailjet = new Mailjet({
   apiKey: process.env.MAILJET_API_KEY || '',
-  apiSecret: process.env.MAILJET_SECRET_KEY || ''
+  apiSecret: process.env.MAILJET_API_SECRET || ''
 })
 
 async function verifyRecaptcha(token: string) {
