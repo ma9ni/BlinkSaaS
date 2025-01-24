@@ -10,7 +10,7 @@ Une plateforme moderne pour le développement rapide de SaaS et l'automatisation
 - 🎨 Design immersif avec animations 3D
 - 🌙 Mode sombre/clair
 - 📱 Adaptation mobile complète
-- 📊 Analytics intégré (Google Analytics & Vercel)
+- 📊 Analytics avancé avec Google Analytics 4
 - 🔒 Gestion des cookies RGPD
 - 📝 Blog intégré
 - 📬 Formulaire de contact avec reCAPTCHA
@@ -25,8 +25,9 @@ Une plateforme moderne pour le développement rapide de SaaS et l'automatisation
 - **3D Graphics**: Three.js avec React Three Fiber
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **Analytics**: Google Analytics & Vercel Analytics
+- **Analytics**: Google Analytics 4
 - **Form Handling**: React Hook Form avec Zod
+- **Email**: EmailJS
 - **Security**: Google reCAPTCHA v3
 
 ## 📦 Installation
@@ -44,14 +45,18 @@ npm install
 
 3. Créez un fichier `.env.local` et ajoutez vos variables d'environnement :
 ```env
+# EmailJS Configuration
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=votre_service_id
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=votre_template_id
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=votre_public_key
+NEXT_PUBLIC_CONTACT_EMAIL=votre_email
+
 # Google reCAPTCHA
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=votre_cle_recaptcha
+RECAPTCHA_SECRET_KEY=votre_cle_secrete_recaptcha
 
 # Google Analytics
-NEXT_PUBLIC_GA_MEASUREMENT_ID=votre_id_google_analytics
-
-# Contact Form
-NEXT_PUBLIC_CONTACT_EMAIL=blinksaas@gmail.com
+NEXT_PUBLIC_GA_MEASUREMENT_ID=votre_id_ga4
 ```
 
 4. Lancez le serveur de développement :
@@ -75,51 +80,58 @@ blinksaas/
 └── styles/              # Styles globaux
 ```
 
-## 📄 Pages Principales
+## 📊 Analytics & Tracking
 
-- `/` - Page d'accueil
-- `/services` - Services offerts
-- `/portfolio` - Portfolio des projets
-- `/blog` - Articles et actualités
-- `/contact` - Formulaire de contact
+Le projet utilise Google Analytics 4 pour un tracking avancé des utilisateurs :
+
+### Événements Trackés
+
+- 📍 Navigation entre les pages
+- 👆 Interactions utilisateur (clics, scrolls)
+- ⏱️ Temps passé sur chaque page
+- 📱 Informations sur l'appareil
+- 🌍 Données géographiques
+- 🔍 Sources de trafic
+- 🎯 Conversions et objectifs
+
+### Configuration Analytics
+
+Le tracking est configuré pour collecter :
+
+- Données démographiques
+- Intérêts des utilisateurs
+- Comportement de navigation
+- Performance des pages
+- Engagement utilisateur
+- Parcours de conversion
+
+### Gestion des Cookies
+
+La gestion des cookies est conforme au RGPD tout en maximisant la collecte de données :
+
+- Cookies nécessaires (toujours actifs)
+- Cookies analytiques (Google Analytics)
+- Cookies marketing
+- Cookies de personnalisation
+
+## 🔒 Sécurité
+
+- Protection reCAPTCHA v3
+- Validation des formulaires
+- Sécurisation des emails avec EmailJS
+- Headers de sécurité configurés
 
 ## 🚀 Déploiement
 
-Le projet est configuré pour un déploiement sur Netlify. Pour déployer :
+Pour déployer l'application :
 
-1. Connectez votre repository à Netlify
-2. Configurez les variables d'environnement dans les paramètres du projet :
-   - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`
-   - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
-   - `NEXT_PUBLIC_CONTACT_EMAIL`
-3. Déployez avec la commande :
+1. Construisez l'application :
 ```bash
 npm run build
 ```
 
-## 📊 Analytics
-
-Le projet utilise Google Analytics et Vercel Analytics pour le suivi des performances :
-
-- Configuration de Google Analytics dans `lib/analytics.tsx`
-- Tracking des pages avec `hooks/use-page-tracking.tsx`
-- Gestion du consentement des cookies intégrée
-
-## 🔒 Sécurité
-
-- Protection reCAPTCHA v3 sur le formulaire de contact
-- Gestion RGPD des cookies
-- Headers de sécurité configurés
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à :
-
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amelioration`)
-3. Commit vos changements (`git commit -m 'Ajout d'une nouvelle fonctionnalité'`)
-4. Push sur la branche (`git push origin feature/amelioration`)
-5. Ouvrir une Pull Request
+2. Le dossier `out` contient les fichiers statiques prêts à être déployés
+3. Déployez sur votre plateforme d'hébergement préférée
 
 ## 📝 License
 

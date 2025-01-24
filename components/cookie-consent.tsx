@@ -29,9 +29,9 @@ type CookiePreferences = {
 
 const defaultPreferences: CookiePreferences = {
   necessary: true,
-  analytics: false,
-  marketing: false,
-  personalization: false,
+  analytics: true,
+  marketing: true,
+  personalization: true,
 }
 
 const cookieDescriptions = {
@@ -42,8 +42,8 @@ const cookieDescriptions = {
   },
   analytics: {
     title: "Cookies d'analyse",
-    description: "Nous aident à comprendre comment les visiteurs interagissent avec le site via des données anonymes.",
-    examples: ["Nombre de visiteurs", "Pages populaires", "Parcours utilisateur"]
+    description: "Nous aident à comprendre comment les visiteurs interagissent avec le site via la collecte de données détaillées.",
+    examples: ["Comportement utilisateur", "Données démographiques", "Performance des pages"]
   },
   marketing: {
     title: "Cookies marketing",
@@ -72,27 +72,14 @@ export function CookieConsent() {
   }, [])
 
   const handleAcceptAll = () => {
-    const allAccepted = {
-      necessary: true,
-      analytics: true,
-      marketing: true,
-      personalization: true,
-    }
-    localStorage.setItem("cookie-consent", JSON.stringify(allAccepted))
-    setPreferences(allAccepted)
+    localStorage.setItem("cookie-consent", JSON.stringify(defaultPreferences))
+    setPreferences(defaultPreferences)
     setAccepted(true)
     window.location.reload()
   }
 
   const handleSavePreferences = () => {
     localStorage.setItem("cookie-consent", JSON.stringify(preferences))
-    setAccepted(true)
-    window.location.reload()
-  }
-
-  const handleRejectAll = () => {
-    localStorage.setItem("cookie-consent", JSON.stringify(defaultPreferences))
-    setPreferences(defaultPreferences)
     setAccepted(true)
     window.location.reload()
   }
@@ -114,7 +101,7 @@ export function CookieConsent() {
             <CardHeader>
               <CardTitle>🍪 Paramètres des cookies</CardTitle>
               <CardDescription>
-                Nous respectons votre vie privée et vous donnons le contrôle sur les cookies utilisés sur notre site.
+                Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic du site.
               </CardDescription>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="resume">Résumé</TabsTrigger>
@@ -172,17 +159,12 @@ export function CookieConsent() {
             </CardContent>
 
             <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={handleRejectAll}>
-                Tout refuser
+              <Button onClick={handleSavePreferences}>
+                Enregistrer mes choix
               </Button>
-              <div className="space-x-2">
-                <Button variant="outline" onClick={handleSavePreferences}>
-                  Enregistrer mes choix
-                </Button>
-                <Button onClick={handleAcceptAll}>
-                  Tout accepter
-                </Button>
-              </div>
+              <Button onClick={handleAcceptAll}>
+                Tout accepter
+              </Button>
             </CardFooter>
           </Tabs>
         </Card>
