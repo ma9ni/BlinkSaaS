@@ -2,7 +2,7 @@
 
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 type CookieConsent = {
   necessary: boolean;
@@ -18,40 +18,59 @@ export type AnalyticsEvent = {
 
 export function useAnalytics() {
   const [isEnabled, setIsEnabled] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('cookie-consent');
-      if (stored) {
-        const consent = JSON.parse(stored) as CookieConsent;
-        setIsEnabled(consent.analytics);
+    const initializeAnalytics = () => {
+      try {
+        const stored = localStorage.getItem('cookie-consent');
+        if (stored) {
+          const consent = JSON.parse(stored) as CookieConsent;
+          setIsEnabled(consent.analytics);
+        }
+        setIsInitialized(true);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error initializing analytics:', error);
+        }
+        setIsEnabled(false);
+        setIsInitialized(true);
       }
-    } catch (error) {
-      console.error('Error reading analytics consent:', error);
-    }
+    };
+
+    initializeAnalytics();
   }, []);
 
-  const trackEvent = (event: AnalyticsEvent) => {
-    if (!isEnabled) return;
+  const trackEvent = useCallback((event: AnalyticsEvent) => {
+    if (!isEnabled || !isInitialized) return;
 
+    const { name, properties } = event;
+    
     try {
-      // Envoi de l'événement à Vercel Analytics
       const w = window as any;
-      if (w.va) {
-        w.va.track(event.name, event.properties);
+      
+      // Vercel Analytics
+      if (typeof w.va?.track === 'function') {
+        w.va.track(name, properties);
       }
 
-      // Envoi de l'événement à Google Analytics
-      if (w.gtag) {
-        w.gtag('event', event.name, {
-          ...event.properties,
-          send_to: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+      // Google Analytics
+      const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+      if (typeof w.gtag === 'function' && gaId) {
+        w.gtag('event', name, {
+          ...properties,
+          send_to: gaId
         });
       }
     } catch (error) {
-      console.error('Error tracking event:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Analytics event tracking failed:', {
+          event: name,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
     }
-  };
+  }, [isEnabled, isInitialized]);
 
   return { isEnabled, trackEvent };
 }
@@ -67,11 +86,14 @@ export function Analytics() {
         setShowAnalytics(consent.analytics);
       }
     } catch (error) {
-      console.error('Error reading analytics consent:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Error reading analytics consent:', error);
+      }
+      setShowAnalytics(false);
     }
   }, []);
 
-  if (!showAnalytics) {
+  if (!showAnalytics || !process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) {
     return null;
   }
 

@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Send } from "lucide-react"
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "react-google-recaptcha-v3"
+import emailjs from '@emailjs/browser'
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -69,20 +70,21 @@ function ContactForm() {
         return
       }
 
-      const response = await fetch('/.netlify/functions/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...values,
-          recaptchaToken: token
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'envoi du message')
+      const templateParams = {
+        from_name: `${values.firstName} ${values.lastName}`,
+        from_email: values.email,
+        phone: values.phone || 'Non renseigné',
+        company: values.company || 'Non renseignée',
+        message: values.message,
+        recaptcha_token: token
       }
+
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        templateParams,
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      )
 
       toast.success("Message envoyé avec succès !", {
         description: "Nous avons bien reçu votre message et reviendrons vers vous rapidement.",
