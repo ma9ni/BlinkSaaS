@@ -106,44 +106,6 @@ ${message}
           ]
         })
 
-      // Email de confirmation à l'utilisateur
-      await mailjet
-        .post('send', { version: 'v3.1' })
-        .request({
-          Messages: [
-            {
-              From: {
-                Email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-                Name: "BlinkSaaS"
-              },
-              To: [
-                {
-                  Email: email,
-                  Name: `${firstName} ${lastName}`
-                }
-              ],
-              Subject: "Confirmation de votre message - BlinkSaaS",
-              TextPart: `
-Bonjour ${firstName},
-
-Nous avons bien reçu votre message et nous vous en remercions.
-Notre équipe reviendra vers vous dans les plus brefs délais.
-
-Cordialement,
-L'équipe BlinkSaaS
-              `,
-              HTMLPart: `
-<h3>Bonjour ${firstName},</h3>
-<p>Nous avons bien reçu votre message et nous vous en remercions.</p>
-<p>Notre équipe reviendra vers vous dans les plus brefs délais.</p>
-<br>
-<p>Cordialement,</p>
-<p>L'équipe BlinkSaaS</p>
-              `
-            }
-          ]
-        })
-
       return NextResponse.json({ success: true })
     } catch (mailjetError) {
       console.error('Mailjet error:', mailjetError)
